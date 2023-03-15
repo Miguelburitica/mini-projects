@@ -11,7 +11,14 @@
     <div class="concept-inputs">
       <input v-model="conceptName" type="text" placeholder="Ingresar concepto">
       <div>
-        <input v-model="conceptAmount" type="tel" placeholder="Ingresar valor" @keypress.enter="createNewConceptItem">
+        <input
+          v-model="conceptAmountLabel"
+          type="text"
+          placeholder="Ingresar valor"
+          @keypress.enter="createNewConceptItem"
+          @input="realTimeFormat"
+        >
+
         <button @click="createNewConceptItem">Add</button>
       </div>
     </div>
@@ -34,7 +41,9 @@ export default defineComponent({
       currentConceptsList: new AccountItemList(),
       expenseMode: Boolean(),
       conceptName: String(),
-      conceptAmount: Number()
+      conceptAmount: Number(),
+      conceptAmountLabel: String(),
+      timeoutId: Number()
     }
   },
   methods: {
@@ -50,6 +59,29 @@ export default defineComponent({
       const newConceptList = this.currentConceptsList.list.filter(item => item.id !== id)
 
       this.currentConceptsList.list = newConceptList
+    },
+    formatCurrency (amount: number): string {
+      const formater = Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' })
+
+      return formater.format(amount)
+    },
+    realTimeFormat (event: Event) {
+      clearTimeout(this.timeoutId)
+      const input = event.target as HTMLInputElement
+
+      const userInput = input.value
+      const numericInput1 = userInput.replace(/[^\d-,]/g, '')
+      const numericInput = numericInput1.replace(/[,]/g, '.')
+
+      const number = parseFloat(numericInput)
+
+      const formattedValue = this.formatCurrency(number)
+
+      this.conceptAmount = number
+
+      this.timeoutId = setTimeout(() => {
+        this.conceptAmountLabel = formattedValue
+      }, 1000)
     }
   }
 })

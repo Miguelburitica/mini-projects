@@ -10,7 +10,8 @@
   </div>
 
   <div class="flex-column-center">
-    <b class="resume">Total: {{ currentTotal }}</b>
+    <b class="resume">Total: {{ totalResume.subtotal }}</b>
+    <b class="resume">De un total de {{ totalResume.totalItems }} conceptos</b>
     <button class="confirm" @click="exportExcel">Exportar consolidado</button>
   </div>
 </div>
@@ -30,17 +31,13 @@ export default defineComponent({
     }
   },
   computed: {
-    currentTotal ():string {
+    totalResume () {
       let total = Number()
       for (const item of this.conceptItems.list) {
-        if (item.type === 'expense') {
-          total = total - Number(item.amount)
-        } else {
-          total = total + Number(item.amount)
-        }
+        total += Number(item.amount)
       }
 
-      return this.formatCurrency(total)
+      return { subtotal: this.formatCurrency(total), totalItems: this.conceptItems.list.length }
     }
   },
   methods: {
@@ -50,10 +47,46 @@ export default defineComponent({
       return formater.format(amount)
     },
     exportExcel () {
-      const worksheet = XLSX.utils.json_to_sheet(this.conceptItems.list)
+      // Incomes Table
+      let incomeTotal = 0
+      const incomes = this.conceptItems.list
+        .filter(item => item.type === 'income')
+        .map(item => {
+          const { concept, amount } = item
+          incomeTotal += Number(amount)
+          return { Concepto: concept, Monto: amount }
+        })
+
+      const incomesSheet = [
+        ['Ingresos'],
+        Object.keys(incomes[0]),
+        ...incomes.map(item => Object.values(item)),
+        ['Subtotal:', incomeTotal]
+      ]
+
+      // Expenses table
+      let expenseTotal = 0
+      const expenses = this.conceptItems.list
+        .filter(item => item.type === 'expense')
+        .map(item => {
+          const { concept, amount } = item
+          expenseTotal += Number(amount)
+          return { Concepto: concept, Monto: amount }
+        })
+
+      const expensesSheet = [
+        ['Gastos'],
+        Object.keys(expenses[0]),
+        ...expenses.map(item => Object.values(item)),
+        ['Subtotal:', expenseTotal],
+        ['Total:', expenseTotal + incomeTotal]
+      ]
+      const worksheet = XLSX.utils.aoa_to_sheet([])
+      XLSX.utils.sheet_add_aoa(worksheet, expensesSheet, { origin: 'A1' })
+      XLSX.utils.sheet_add_aoa(worksheet, incomesSheet, { origin: 'E1' })
 
       const workbook = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'sheet1')
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Data')
 
       XLSX.writeFile(workbook, 'file.xlsx')
     }
