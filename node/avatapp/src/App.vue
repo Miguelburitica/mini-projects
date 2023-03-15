@@ -1,16 +1,18 @@
 <template>
 <div class="container">
-  <ResumeComponent :conceptItems="currentConceptsList"></ResumeComponent>
+  <div class="resume-container">
+    <ResumeComponent :conceptItems="currentConceptsList" @removeItem="removeItem"></ResumeComponent>
+  </div>
   <div class="concept-form">
     <div class="mode-concept">
-      <b :class="{ active: expenseMode }" @click="expenseMode = true">Gasto</b>
-      <b :class="{ active: !expenseMode }" @click="expenseMode = false">Ingreso</b>
+      <b class="expenses" :class="{ active: expenseMode }" @click="expenseMode = true">Gasto</b>
+      <b class="incomes" :class="{ active: !expenseMode }" @click="expenseMode = false">Ingreso</b>
     </div>
     <div class="concept-inputs">
-      <input type="text" placeholder="Ingresar concepto">
+      <input v-model="conceptName" type="text" placeholder="Ingresar concepto">
       <div>
-        <input type="tel" placeholder="Ingresar valor">
-        <button>Add</button>
+        <input v-model="conceptAmount" type="tel" placeholder="Ingresar valor" @keypress.enter="createNewConceptItem">
+        <button @click="createNewConceptItem">Add</button>
       </div>
     </div>
   </div>
@@ -20,7 +22,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import ResumeComponent from '@/components/ResumeComponent.vue'
-import { AccountItemList } from './entities'
+import { AccountItemList, AccountItem } from './entities'
 
 export default defineComponent({
   name: 'App',
@@ -29,40 +31,92 @@ export default defineComponent({
   },
   data: function () {
     return {
-      currentConceptsList: AccountItemList,
-      expenseMode: Boolean()
+      currentConceptsList: new AccountItemList(),
+      expenseMode: Boolean(),
+      conceptName: String(),
+      conceptAmount: Number()
+    }
+  },
+  methods: {
+    createNewConceptItem () {
+      if (!this.conceptName || !this.conceptAmount) return
+
+      const typeConcept = this.expenseMode ? 'expense' : 'income'
+      const conceptAmount = this.expenseMode ? this.conceptAmount * -1 : this.conceptAmount
+      const conceptItem = new AccountItem(this.conceptName, conceptAmount, typeConcept)
+      this.currentConceptsList.list.push(conceptItem)
+    },
+    removeItem (id: string) {
+      const newConceptList = this.currentConceptsList.list.filter(item => item.id !== id)
+
+      this.currentConceptsList.list = newConceptList
     }
   }
 })
 </script>
 
 <style lang="less">
+* {
+  box-sizing: border-box;
+}
+
+body {
+  color-scheme: dark;
+  background-color: var(--dark-color);
+}
+
+:root {
+  --ok-color: #9FCC2E;
+  --blue-color: #90D7FF;
+  --border-color: #BFD0E0;
+  --wrong-color: #E3170A;
+  --dark-color: #2D1E2F;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 40px;
+}
+
+.flex-column-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .container {
   display: flex;
   justify-content: space-around;
-  align-items: center;
   width: 100%;
   max-width: 1120px;
   margin: 0 auto;
+
+  @media(max-width: 800px) {
+    align-items: center;
+    flex-direction: column-reverse;
+  }
+}
+
+.resume-container {
+  width: 40%;
+
+  @media(max-width: 800px) {
+    width: 95%;
+  }
 }
 
 .concept-form {
   display: flex;
   flex-direction: column;
-  width: 60%;
   align-items: center;
+  width: 60%;
 
   .mode-concept {
-    width: 60%;
+    width: 80%;
     display: flex;
     justify-content: space-evenly;
     border-radius: 6px;
@@ -70,14 +124,21 @@ export default defineComponent({
     margin-bottom: 30px;
 
     b {
-      background-color: #2c3e5033;
+      background-color: #bedbf8;
+      color: var(--dark-color);
       padding: 8px 0;
       width: 50%;
       transition: all .3s ease;
       cursor: pointer;
+      line-height: 1;
 
-      &.active {
-        background-color: #2c3e50dd;
+      &.incomes.active {
+        background-color: var(--ok-color);
+        color: ghostwhite;
+      }
+
+      &.expenses.active {
+        background-color: var(--wrong-color);
         color: ghostwhite;
       }
 
@@ -92,19 +153,45 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 60%;
+    gap: 10px;
+    width: 80%;
 
     input {
       width: 100%;
       border-radius: 4px;
       outline: none;
-      border: 1px solid #2c3e50;
+      border: var(--border-color) 1px solid;
+      padding: 6px 10px;
     }
 
     div {
       display: flex;
       width: 100%;
+
+      input {
+        border-radius: 4px 0 0 4px;
+        border-right: none;
+      }
+
+      button {
+        background-color: var(--blue-color);
+        color: var(--dark-color);
+        border: var(--border-color) 1px solid;
+        border-radius: 0 4px 4px 0;
+        outline: none;
+        transition: .3s all ease;
+        cursor: pointer;
+
+        &:hover {
+          filter: brightness(108%);
+        }
+      }
     }
+  }
+
+  @media(max-width: 800px) {
+    width: 100%;
+    margin-bottom: 25px;
   }
 }
 </style>
