@@ -1,0 +1,50 @@
+{
+  "id": 9,
+  "name": "blastoise",
+  "types": [
+    {
+      "slot": 1,
+      "type": {
+        "name": "water"
+      }
+    }
+  ],
+  "stats": [
+    {
+      "base_stat": 79,
+      "stat": {
+        "name": "hp"
+      }
+    },
+    {
+      "base_stat": 83,
+      "stat": {
+        "name": "attack"
+      }
+    },
+    {
+      "base_stat": 100,
+      "stat": {
+        "name": "defense"
+      }
+    },
+    {
+      "base_stat": 85,
+      "stat": {
+        "name": "special-attack"
+      }
+    },
+    {
+      "base_stat": 105,
+      "stat": {
+        "name": "special-defense"
+      }
+    },
+    {
+      "base_stat": 78,
+      "stat": {
+        "name": "speed"
+      }
+    }
+  ]
+}

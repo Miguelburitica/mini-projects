@@ -1,0 +1,11 @@
+{
+  "Id": 9,
+  "Name": "blastoise",
+  "Type": "water",
+  "Abilities": {
+    "Attack": 83,
+    "Defense": 100,
+    "Hp": 79,
+    "Speed": 78
+  }
+}
