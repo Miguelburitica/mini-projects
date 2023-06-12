@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package student;
+
+option go_package = "github.com/Miguelburitica/mini-projects/go/protobuffers;studentpb";
+
+message Student {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+}
