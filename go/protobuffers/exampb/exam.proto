@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+import "studentpb/student.proto";
+
+package exam;
+
+option go_package = "github.com/Miguelburitica/mini-projects/go/protobuffers/exampb";
+
+message Exam {
+  string id = 1;
+  string name = 2;
+}
+
+message Question {
+  string id = 1;
+  string answer = 2;
+  string question = 3;
+  string exam_id = 4;
+}
+
+message GetExamRequest {
+  string id = 1;
+}
+
+message SetExamResponse {
+  string id = 1;
+  string name = 2;
+}
+
+message SetQuestionResponse {
+  bool ok = 1;
+}
+
+message EnrrolmentRequest {
+  string student_id = 1;
+  string exam_id = 2;
+}
+
+message GetStudentsPerExamRequest {
+  string exam_id = 1;
+}
+
+service ExamService {
+  rpc GetExam(GetExamRequest) returns (Exam);
+  rpc SetExam(Exam) returns (SetExamResponse);
+  rpc SetQuestions(stream Question) returns (SetQuestionResponse);
+  rpc EnrollStudents(stream EnrrolmentRequest) returns (SetQuestionResponse);
+  rpc GetStudentsPerExam(GetStudentsPerExamRequest) returns (stream student.Student);
+}
+
