@@ -1,0 +1,35 @@
+syntax = "proto3";
+import "api/proto/user.proto";
+
+package class;
+
+option go_package = "github.com/Miguelburitica/unillanos-project/api/proto/classpb";
+
+message Class {
+  int32 id = 1;
+  int32 teacher_id = 2;
+  string name = 3;
+  string description = 4;
+  user.GetTeacherResponse teacher = 5;
+  repeated Schedule schedule = 6;
+}
+
+message Schedule {
+  DayOfWeek day = 1;
+  repeated HourOfDay hours = 2;
+}
+
+enum DayOfWeek {
+  MONDAY = 0;
+  TUESDAY = 1;
+  WEDNESDAY = 2;
+  THURSDAY = 3;
+  FRIDAY = 4;
+  SATURDAY = 5;
+  SUNDAY = 6;
+}
+
+message HourOfDay {
+  int32 start = 1;
+  int32 end = 2;
+}
